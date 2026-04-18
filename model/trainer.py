@@ -27,7 +27,7 @@ class XMemTrainer:
 
         self.XMem = nn.parallel.DistributedDataParallel(
             XMem(config).cuda(), 
-            device_ids=[local_rank], output_device=local_rank, broadcast_buffers=False)
+            device_ids=[local_rank], output_device=local_rank, broadcast_buffers=False,find_unused_parameters=True)
 
         # Set up logger when local_rank=0
         self.logger = logger

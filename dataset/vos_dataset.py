@@ -36,12 +36,12 @@ class VOSDataset(Dataset):
         vid_list = sorted(os.listdir(self.im_root))
         # Pre-filtering
         for vid in vid_list:
-            if subset is not None:
-                if vid not in subset:
-                    continue
+            #if subset is not None:
+            #   if vid not in subset:
+            #       continue
             frames = sorted(os.listdir(os.path.join(self.im_root, vid)))
-            if len(frames) < num_frames:
-                continue
+            if len(frames) < 1:
+              continue
             self.frames[vid] = frames
             self.videos.append(vid)
 
@@ -151,13 +151,15 @@ class VOSDataset(Dataset):
 
                 this_im = self.final_im_transform(this_im)
                 this_gt = np.array(this_gt)
+                if this_gt.max() == 0:
+                    this_gt[0, 0] = 1
 
                 images.append(this_im)
                 masks.append(this_gt)
 
             images = torch.stack(images, 0)
 
-            labels = np.unique(masks[0])
+            labels = np.unique(np.concatenate(masks, axis=None))
             # Remove background
             labels = labels[labels!=0]
 
@@ -176,8 +178,8 @@ class VOSDataset(Dataset):
                 labels = np.array(good_lables, dtype=np.uint8)
             
             if len(labels) == 0:
-                target_objects = []
-                trials += 1
+                target_objects = [1]
+                break
             else:
                 target_objects = labels.tolist()
                 break
